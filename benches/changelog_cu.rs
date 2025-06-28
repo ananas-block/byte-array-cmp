@@ -17,12 +17,12 @@ const PROGRAM_ID: Pubkey = Pubkey::new_from_array([
     0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20,
 ]);
 
-// Test program instruction types - Built-in comparison
-const FIND_AFTER_10_ITERATIONS_BUILTIN: u8 = 10;
-const FIND_AFTER_100_ITERATIONS_BUILTIN: u8 = 11;
-const FIND_NOT_FOUND_BUILTIN: u8 = 12;
+// Test program instruction types - PartialEq comparison
+const FIND_AFTER_10_ITERATIONS_PARTIALEQ: u8 = 10;
+const FIND_AFTER_100_ITERATIONS_PARTIALEQ: u8 = 11;
+const FIND_NOT_FOUND_PARTIALEQ: u8 = 12;
 
-// Test program instruction types - Manual comparison
+// Test program instruction types - Manual loop comparison
 const FIND_AFTER_10_ITERATIONS_MANUAL: u8 = 13;
 const FIND_AFTER_100_ITERATIONS_MANUAL: u8 = 14;
 const FIND_NOT_FOUND_MANUAL: u8 = 15;
@@ -130,15 +130,15 @@ fn main() {
     // Create a changelog account
     let changelog_pubkey = Pubkey::new_unique();
 
-    // Create instructions for each benchmark type - Built-in comparison
-    let mut instruction_data_10_builtin = vec![FIND_AFTER_10_ITERATIONS_BUILTIN];
-    instruction_data_10_builtin.extend_from_slice(&target_key_10);
+    // Create instructions for each benchmark type - PartialEq comparison
+    let mut instruction_data_10_partialeq = vec![FIND_AFTER_10_ITERATIONS_PARTIALEQ];
+    instruction_data_10_partialeq.extend_from_slice(&target_key_10);
 
-    let mut instruction_data_100_builtin = vec![FIND_AFTER_100_ITERATIONS_BUILTIN];
-    instruction_data_100_builtin.extend_from_slice(&target_key_100);
+    let mut instruction_data_100_partialeq = vec![FIND_AFTER_100_ITERATIONS_PARTIALEQ];
+    instruction_data_100_partialeq.extend_from_slice(&target_key_100);
 
-    let mut instruction_data_not_found_builtin = vec![FIND_NOT_FOUND_BUILTIN];
-    instruction_data_not_found_builtin.extend_from_slice(&target_key_not_found);
+    let mut instruction_data_not_found_partialeq = vec![FIND_NOT_FOUND_PARTIALEQ];
+    instruction_data_not_found_partialeq.extend_from_slice(&target_key_not_found);
 
     // Create instructions for each benchmark type - Manual comparison
     let mut instruction_data_10_manual = vec![FIND_AFTER_10_ITERATIONS_MANUAL];
@@ -211,21 +211,21 @@ fn main() {
     let mut instruction_data_simd_iterator_cu_tracking = vec![SIMD_ITERATOR_CU_TRACKING];
     instruction_data_simd_iterator_cu_tracking.extend_from_slice(&target_key_10);
 
-    let instruction_find_10_builtin = Instruction::new_with_bytes(
+    let instruction_find_10_partialeq = Instruction::new_with_bytes(
         PROGRAM_ID,
-        &instruction_data_10_builtin,
+        &instruction_data_10_partialeq,
         vec![AccountMeta::new(changelog_pubkey, false)],
     );
 
-    let instruction_find_100_builtin = Instruction::new_with_bytes(
+    let instruction_find_100_partialeq = Instruction::new_with_bytes(
         PROGRAM_ID,
-        &instruction_data_100_builtin,
+        &instruction_data_100_partialeq,
         vec![AccountMeta::new(changelog_pubkey, false)],
     );
 
-    let instruction_find_not_found_builtin = Instruction::new_with_bytes(
+    let instruction_find_not_found_partialeq = Instruction::new_with_bytes(
         PROGRAM_ID,
-        &instruction_data_not_found_builtin,
+        &instruction_data_not_found_partialeq,
         vec![AccountMeta::new(changelog_pubkey, false)],
     );
 
@@ -373,9 +373,9 @@ fn main() {
         rent_epoch: 0,
     };
 
-    let accounts_10_builtin = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_100_builtin = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_not_found_builtin = vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_10_partialeq = vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_100_partialeq = vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_not_found_partialeq = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_10_manual = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_100_manual = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_not_found_manual = vec![(changelog_pubkey, create_account(account_data.clone()))];
@@ -414,19 +414,19 @@ fn main() {
 
     MolluskComputeUnitBencher::new(mollusk)
         .bench((
-            "find_after_10_iterations_builtin",
-            &instruction_find_10_builtin,
-            &accounts_10_builtin,
+            "find_after_10_iterations_partialeq",
+            &instruction_find_10_partialeq,
+            &accounts_10_partialeq,
         ))
         .bench((
-            "find_after_100_iterations_builtin",
-            &instruction_find_100_builtin,
-            &accounts_100_builtin,
+            "find_after_100_iterations_partialeq",
+            &instruction_find_100_partialeq,
+            &accounts_100_partialeq,
         ))
         .bench((
-            "find_not_found_builtin",
-            &instruction_find_not_found_builtin,
-            &accounts_not_found_builtin,
+            "find_not_found_partialeq",
+            &instruction_find_not_found_partialeq,
+            &accounts_not_found_partialeq,
         ))
         .bench((
             "find_after_10_iterations_manual",

@@ -22,7 +22,7 @@ Base program CU cost: 563
 | ptoken_combined_fast                   | 779    |
 | optimization_simd                      | 785    |
 | simd_slice                             | 786    |
-| find_after_10_iterations_builtin       | 804    |
+| find_after_10_iterations_partialeq     | 804    |
 | optimization_unrolled                  | 871    |
 | find_after_10_iterations_manual        | 874    |
 | optimization_unsafe                    | 881    |
@@ -32,11 +32,11 @@ Base program CU cost: 563
 | optimization_simd_100                  | 6,871  |
 | ptoken_u128_cast_100                   | 7,349  |
 | find_after_100_iterations_manual       | 7,906  |
-| find_after_100_iterations_builtin      | 11,202 |
+| find_after_100_iterations_partialeq    | 11,202 |
 | **1000 iterations (not found)**        |        |
 | simd_iterator_1000_not_found           | 61,750 |
 | optimization_simd_1000_not_found       | 61,773 |
 | optimization_unrolled_not_found        | 64,781 |
 | ptoken_u128_cast_1000_not_found        | 66,751 |
 | find_not_found_manual                  | 72,730 |
-| find_not_found_builtin                 | 105,720|
+| find_not_found_partialeq               | 105,720|

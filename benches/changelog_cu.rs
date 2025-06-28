@@ -3,8 +3,8 @@ use {
     mollusk_svm::Mollusk,
     mollusk_svm_bencher::MolluskComputeUnitBencher,
     optimize_cmp::changelog::{Entry, GenericChangelog},
-    rand::{Rng, SeedableRng},
     rand::rngs::StdRng,
+    rand::{Rng, SeedableRng},
     solana_account::Account,
     solana_program::{
         instruction::{AccountMeta, Instruction},
@@ -22,7 +22,7 @@ const FIND_AFTER_10_ITERATIONS_BUILTIN: u8 = 10;
 const FIND_AFTER_100_ITERATIONS_BUILTIN: u8 = 11;
 const FIND_NOT_FOUND_BUILTIN: u8 = 12;
 
-// Test program instruction types - Manual comparison  
+// Test program instruction types - Manual comparison
 const FIND_AFTER_10_ITERATIONS_MANUAL: u8 = 13;
 const FIND_AFTER_100_ITERATIONS_MANUAL: u8 = 14;
 const FIND_NOT_FOUND_MANUAL: u8 = 15;
@@ -36,7 +36,7 @@ const OPTIMIZATION_UNROLLED_NOT_FOUND: u8 = 24;
 const OPTIMIZATION_SIMD_100: u8 = 25;
 const OPTIMIZATION_SIMD_1000_NOT_FOUND: u8 = 26;
 
-// P-Token inspired optimization instruction types  
+// P-Token inspired optimization instruction types
 const PTOKEN_SOL_MEMCMP: u8 = 27;
 const PTOKEN_U128_CAST: u8 = 28;
 const PTOKEN_POINTER_EQUALITY: u8 = 29;
@@ -50,6 +50,7 @@ const SIMD_ZIP: u8 = 35;
 const SIMD_SLICE: u8 = 36;
 const SIMD_ITERATOR_100: u8 = 37;
 const SIMD_ITERATOR_1000_NOT_FOUND: u8 = 38;
+const SIMD_ITERATOR_CU_TRACKING: u8 = 39;
 
 // Deterministic seed for consistent benchmark results
 const BENCHMARK_SEED: u64 = 9876543210987654321;
@@ -114,10 +115,13 @@ fn create_changelog_account_data() -> (Vec<u8>, [u8; 32], [u8; 32], [u8; 32]) {
 }
 
 fn main() {
-    // Disable logging for cleaner benchmark output
-    solana_logger::setup_with("");
+    // Enable logging to see CU tracking
+    solana_logger::setup_with("debug");
 
-    let mollusk = Mollusk::new(&PROGRAM_ID, "./target/deploy/optimize_cmp");
+    let mut mollusk = Mollusk::new(&PROGRAM_ID, "./target/deploy/optimize_cmp");
+    // Enable CU logging
+    mollusk.compute_budget.log_64_units = 1;
+    mollusk.compute_budget.log_pubkey_units = 1;
 
     // Create changelog account with 1000 entries
     let (account_data, target_key_10, target_key_100, target_key_not_found) =
@@ -184,7 +188,8 @@ fn main() {
     let mut instruction_data_ptoken_u128_cast_100 = vec![PTOKEN_U128_CAST_100];
     instruction_data_ptoken_u128_cast_100.extend_from_slice(&target_key_100);
 
-    let mut instruction_data_ptoken_u128_cast_1000_not_found = vec![PTOKEN_U128_CAST_1000_NOT_FOUND];
+    let mut instruction_data_ptoken_u128_cast_1000_not_found =
+        vec![PTOKEN_U128_CAST_1000_NOT_FOUND];
     instruction_data_ptoken_u128_cast_1000_not_found.extend_from_slice(&target_key_not_found);
 
     // SIMD iteration instruction data
@@ -202,6 +207,9 @@ fn main() {
 
     let mut instruction_data_simd_iterator_1000_not_found = vec![SIMD_ITERATOR_1000_NOT_FOUND];
     instruction_data_simd_iterator_1000_not_found.extend_from_slice(&target_key_not_found);
+
+    let mut instruction_data_simd_iterator_cu_tracking = vec![SIMD_ITERATOR_CU_TRACKING];
+    instruction_data_simd_iterator_cu_tracking.extend_from_slice(&target_key_10);
 
     let instruction_find_10_builtin = Instruction::new_with_bytes(
         PROGRAM_ID,
@@ -350,6 +358,12 @@ fn main() {
         vec![AccountMeta::new(changelog_pubkey, false)],
     );
 
+    let instruction_simd_iterator_cu_tracking = Instruction::new_with_bytes(
+        PROGRAM_ID,
+        &instruction_data_simd_iterator_cu_tracking,
+        vec![AccountMeta::new(changelog_pubkey, false)],
+    );
+
     // Create accounts with the changelog data - convert Vec<u8> to Account
     let create_account = |data: Vec<u8>| Account {
         lamports: 0,
@@ -365,151 +379,44 @@ fn main() {
     let accounts_10_manual = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_100_manual = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_not_found_manual = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    
+
     // Optimization accounts
     let accounts_unrolled = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_simd = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_branchless = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_unsafe = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_unrolled_not_found = vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_unrolled_not_found =
+        vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_simd_100 = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_simd_1000_not_found = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    
+    let accounts_simd_1000_not_found =
+        vec![(changelog_pubkey, create_account(account_data.clone()))];
+
     // P-Token optimization accounts
     let accounts_ptoken_sol_memcmp = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_ptoken_u128_cast = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_ptoken_pointer_equality = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_ptoken_combined_fast = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_ptoken_u128_cast_100 = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_ptoken_u128_cast_1000_not_found = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    
+    let accounts_ptoken_pointer_equality =
+        vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_ptoken_combined_fast =
+        vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_ptoken_u128_cast_100 =
+        vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_ptoken_u128_cast_1000_not_found =
+        vec![(changelog_pubkey, create_account(account_data.clone()))];
+
     // SIMD iteration accounts
     let accounts_simd_iterator = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_simd_zip = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_simd_slice = vec![(changelog_pubkey, create_account(account_data.clone()))];
     let accounts_simd_iterator_100 = vec![(changelog_pubkey, create_account(account_data.clone()))];
-    let accounts_simd_iterator_1000_not_found = vec![(changelog_pubkey, create_account(account_data))];
+    let accounts_simd_iterator_1000_not_found =
+        vec![(changelog_pubkey, create_account(account_data.clone()))];
+    let accounts_simd_iterator_cu_tracking = vec![(changelog_pubkey, create_account(account_data))];
 
     MolluskComputeUnitBencher::new(mollusk)
         .bench((
-            "find_after_10_iterations_builtin",
-            &instruction_find_10_builtin,
-            &accounts_10_builtin,
-        ))
-        .bench((
-            "find_after_100_iterations_builtin",
-            &instruction_find_100_builtin,
-            &accounts_100_builtin,
-        ))
-        .bench((
-            "find_not_found_builtin",
-            &instruction_find_not_found_builtin,
-            &accounts_not_found_builtin,
-        ))
-        .bench((
-            "find_after_10_iterations_manual",
-            &instruction_find_10_manual,
-            &accounts_10_manual,
-        ))
-        .bench((
-            "find_after_100_iterations_manual",
-            &instruction_find_100_manual,
-            &accounts_100_manual,
-        ))
-        .bench((
-            "find_not_found_manual",
-            &instruction_find_not_found_manual,
-            &accounts_not_found_manual,
-        ))
-        .bench((
-            "optimization_unrolled",
-            &instruction_unrolled,
-            &accounts_unrolled,
-        ))
-        .bench((
-            "optimization_simd",
-            &instruction_simd,
-            &accounts_simd,
-        ))
-        .bench((
-            "optimization_branchless",
-            &instruction_branchless,
-            &accounts_branchless,
-        ))
-        .bench((
-            "optimization_unsafe",
-            &instruction_unsafe,
-            &accounts_unsafe,
-        ))
-        .bench((
-            "optimization_unrolled_not_found",
-            &instruction_unrolled_not_found,
-            &accounts_unrolled_not_found,
-        ))
-        .bench((
-            "optimization_simd_100",
-            &instruction_simd_100,
-            &accounts_simd_100,
-        ))
-        .bench((
-            "optimization_simd_1000_not_found",
-            &instruction_simd_1000_not_found,
-            &accounts_simd_1000_not_found,
-        ))
-        .bench((
-            "ptoken_sol_memcmp",
-            &instruction_ptoken_sol_memcmp,
-            &accounts_ptoken_sol_memcmp,
-        ))
-        .bench((
-            "ptoken_u128_cast",
-            &instruction_ptoken_u128_cast,
-            &accounts_ptoken_u128_cast,
-        ))
-        .bench((
-            "ptoken_pointer_equality",
-            &instruction_ptoken_pointer_equality,
-            &accounts_ptoken_pointer_equality,
-        ))
-        .bench((
-            "ptoken_combined_fast",
-            &instruction_ptoken_combined_fast,
-            &accounts_ptoken_combined_fast,
-        ))
-        .bench((
-            "ptoken_u128_cast_100",
-            &instruction_ptoken_u128_cast_100,
-            &accounts_ptoken_u128_cast_100,
-        ))
-        .bench((
-            "ptoken_u128_cast_1000_not_found",
-            &instruction_ptoken_u128_cast_1000_not_found,
-            &accounts_ptoken_u128_cast_1000_not_found,
-        ))
-        .bench((
-            "simd_iterator",
-            &instruction_simd_iterator,
-            &accounts_simd_iterator,
-        ))
-        .bench((
-            "simd_zip",
-            &instruction_simd_zip,
-            &accounts_simd_zip,
-        ))
-        .bench((
-            "simd_slice",
-            &instruction_simd_slice,
-            &accounts_simd_slice,
-        ))
-        .bench((
-            "simd_iterator_100",
-            &instruction_simd_iterator_100,
-            &accounts_simd_iterator_100,
-        ))
-        .bench((
-            "simd_iterator_1000_not_found",
-            &instruction_simd_iterator_1000_not_found,
-            &accounts_simd_iterator_1000_not_found,
+            "simd_iterator_cu_tracking",
+            &instruction_simd_iterator_cu_tracking,
+            &accounts_simd_iterator_cu_tracking,
         ))
         .must_pass(true)
         .out_dir("target/benches")

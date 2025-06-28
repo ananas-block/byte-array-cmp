@@ -5,7 +5,7 @@ use solana_program::{
     account_info::AccountInfo,
     entrypoint::{entrypoint, ProgramResult},
     log::sol_log_compute_units,
-    //msg,
+    msg,
     program_error::ProgramError,
     pubkey::Pubkey,
 };
@@ -57,8 +57,8 @@ fn process_instruction(
             }
         }
 
-        // Changelog benchmarks (10-15), optimizations (20-26), p-token optimizations (27-33), and SIMD iterations (34-38)
-        10..=15 | 20..=38 => {
+        // Changelog benchmarks (10-15), optimizations (20-26), p-token optimizations (27-33), and SIMD iterations (34-39)
+        10..=15 | 20..=39 => {
             if accounts.is_empty() {
                 return Err(ProgramError::NotEnoughAccountKeys);
             }
@@ -298,12 +298,25 @@ fn process_instruction(
                         //msg!("Value: {}", value);
                     }
                 }
+                39 => {
+                    // msg!("=== SIMD Iterator CU Tracking (10 Iterations) ===");
+                    msg!("start");
+                    sol_log_compute_units();
+                    let result =
+                        changelog.find_latest_simd_iterator_with_cu_tracking(target_key, Some(10));
+                    sol_log_compute_units();
+                    msg!("end");
+                    //msg!("Found: {:?}", result.is_some());
+                    if let Some(value) = result {
+                        //msg!("Value: {}", value);
+                    }
+                }
                 _ => unreachable!(),
             }
         }
 
         _ => {
-            //msg!("Invalid instruction. Use 1-4 for comparisons, 10-15 for changelog, 20-26 for optimizations, 27-38 for p-token/SIMD optimizations");
+            //msg!("Invalid instruction. Use 1-4 for comparisons, 10-15 for changelog, 20-26 for optimizations, 27-39 for p-token/SIMD optimizations");
             return Err(ProgramError::InvalidInstructionData);
         }
     }

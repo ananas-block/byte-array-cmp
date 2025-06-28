@@ -656,6 +656,70 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
         None
     }
 
+    // Detailed CU tracking version for debugging
+    #[inline(always)]
+    pub fn find_latest_simd_iterator_with_cu_tracking(
+        &self,
+        key: [u8; 32],
+        num_iters: Option<usize>,
+    ) -> Option<u64>
+    where
+        T: KeyValue<Key = [u8; 32], Value = u64>,
+    {
+        use solana_program::log::sol_log_compute_units;
+
+        sol_log_compute_units();
+        let max_iters = num_iters
+            .unwrap_or(self.entries.len())
+            .min(self.entries.len());
+        sol_log_compute_units();
+
+        if max_iters == 0 || self.entries.is_empty() {
+            sol_log_compute_units();
+            return None;
+        }
+        sol_log_compute_units();
+
+        let mut current_index = self.entries.last_index();
+        let mut iterations = 0;
+        sol_log_compute_units();
+
+        while iterations < max_iters {
+            sol_log_compute_units();
+            let entry = &self.entries[current_index];
+            sol_log_compute_units();
+            if simd_iterator_compare(&entry.key(), &key) {
+                sol_log_compute_units();
+                return Some(entry.value());
+            }
+            sol_log_compute_units();
+
+            iterations += 1;
+            sol_log_compute_units();
+            if iterations < max_iters {
+                sol_log_compute_units();
+                if current_index == 0 {
+                    sol_log_compute_units();
+                    if self.entries.len() == self.entries.capacity() {
+                        sol_log_compute_units();
+                        current_index = self.entries.capacity() - 1;
+                    } else {
+                        sol_log_compute_units();
+                        break;
+                    }
+                    sol_log_compute_units();
+                } else {
+                    sol_log_compute_units();
+                    current_index -= 1;
+                }
+                sol_log_compute_units();
+            }
+            sol_log_compute_units();
+        }
+        sol_log_compute_units();
+        None
+    }
+
     #[inline(always)]
     pub fn find_latest_simd_zip(&self, key: [u8; 32], num_iters: Option<usize>) -> Option<u64>
     where

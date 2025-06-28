@@ -1,4 +1,5 @@
 mod comparisons;
+pub mod changelog;
 
 use solana_program::{
     account_info::AccountInfo,

@@ -11,6 +11,8 @@ default = []
 
 [dependencies]
 solana-program = "2.0"
+light-zero-copy = { version = "0.2.0", features = ["std"] }
+zerocopy = { version = "0.8", features = ["derive"] }
 
 [dev-dependencies]
 mollusk-svm = "0.3"

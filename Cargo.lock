@@ -1411,6 +1411,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "light-zero-copy"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a34d759f65547a6540db7047f38f4cb2c3f01658deca95a1dd06f26b578de947"
+dependencies = [
+ "thiserror 2.0.12",
+ "zerocopy",
+]
+
+[[package]]
 name = "litemap"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1744,10 +1754,12 @@ dependencies = [
 name = "optimize-cmp"
 version = "0.1.0"
 dependencies = [
+ "light-zero-copy",
  "mollusk-svm",
  "mollusk-svm-bencher",
  "solana-logger",
  "solana-program",
+ "zerocopy",
 ]
 
 [[package]]

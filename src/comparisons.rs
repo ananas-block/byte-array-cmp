@@ -1,5 +1,6 @@
 use solana_program::msg;
 
+#[inline(always)]
 pub fn benchmark_default_comparison(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32]) {
     msg!("=== Default Comparison Benchmark ===");
     
@@ -16,6 +17,7 @@ pub fn benchmark_default_comparison(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32])
     msg!("Different at start result: {}", result);
 }
 
+#[inline(always)]
 pub fn benchmark_manual_loop(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32]) {
     msg!("=== Manual Loop Benchmark ===");
     
@@ -32,6 +34,7 @@ pub fn benchmark_manual_loop(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32]) {
     msg!("Different at start result: {}", result);
 }
 
+#[inline(always)]
 fn manual_compare_32(a: &[u8; 32], b: &[u8; 32]) -> bool {
     for i in 0..32 {
         if a[i] != b[i] {
@@ -41,6 +44,7 @@ fn manual_compare_32(a: &[u8; 32], b: &[u8; 32]) -> bool {
     true
 }
 
+#[inline(always)]
 pub fn benchmark_unrolled_comparison(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32]) {
     msg!("=== Unrolled Comparison Benchmark ===");
     
@@ -57,6 +61,7 @@ pub fn benchmark_unrolled_comparison(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32]
     msg!("Different at start result: {}", result);
 }
 
+#[inline(always)]
 fn unrolled_compare_32(a: &[u8; 32], b: &[u8; 32]) -> bool {
     if a[0] != b[0] { return false; }
     if a[1] != b[1] { return false; }
@@ -93,6 +98,7 @@ fn unrolled_compare_32(a: &[u8; 32], b: &[u8; 32]) -> bool {
     true
 }
 
+#[inline(always)]
 pub fn benchmark_unsafe_pointer(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32]) {
     msg!("=== Unsafe Pointer Arithmetic Benchmark ===");
     
@@ -109,6 +115,7 @@ pub fn benchmark_unsafe_pointer(a1: &[u8; 32], a2: &[u8; 32], a3: &[u8; 32]) {
     msg!("Different at start result: {}", result);
 }
 
+#[inline(always)]
 fn unsafe_pointer_compare_32(a: &[u8; 32], b: &[u8; 32]) -> bool {
     unsafe {
         let mut a_ptr = a.as_ptr();

@@ -10,17 +10,25 @@ crate-type = ["cdylib", "lib"]
 default = []
 
 [dependencies]
-solana-program = "2.0"
-light-zero-copy = { version = "0.2.0", features = ["std"] }
+solana-program = "2.2.0"
+light-zero-copy = { path = "../../light-protocol2/program-libs/zero-copy", features = [
+    "std",
+] }
 zerocopy = { version = "0.8", features = ["derive"] }
 
 [dev-dependencies]
 mollusk-svm = "0.3"
 mollusk-svm-bencher = "0.3"
-solana-logger = "2.0"
+solana-logger = "2.2.0"
+solana-account = "2.2.0"
+rand = "0.8"
 
 [[bench]]
 name = "compute_units"
+harness = false
+
+[[bench]]
+name = "changelog_cu"
 harness = false
 
 [profile.release]

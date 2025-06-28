@@ -301,10 +301,9 @@ fn process_instruction(
                 39 => {
                     // msg!("=== SIMD Iterator CU Tracking (10 Iterations) ===");
                     msg!("start");
-                    sol_log_compute_units();
-                    let result =
-                        changelog.find_latest_simd_iterator_with_cu_tracking(target_key, Some(10));
-                    sol_log_compute_units();
+                    //  sol_log_compute_units();
+                    let result = changelog.find_latest_direct_field_access(target_key);
+                    //  sol_log_compute_units();
                     msg!("end");
                     //msg!("Found: {:?}", result.is_some());
                     if let Some(value) = result {

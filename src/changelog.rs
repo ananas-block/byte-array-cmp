@@ -239,7 +239,7 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
                 // Rust built-in comparison
                 entry.key() == key
             };
-            // sol_log_compute_units();
+            ////  sol_log_compute_units();
 
             if keys_match {
                 return Some(entry.value());
@@ -262,7 +262,7 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
         //     if let Some(entry) = self.entries.get(current_index) {
         //         let entry_key = entry.key();
 
-        //         // sol_log_compute_units();
+        //         ////  sol_log_compute_units();
         //         let keys_match = if USE_MANUAL_COMPARISON {
         //             // Manual loop comparison with early exit
         //             entry_key.manual_compare(&key)
@@ -270,7 +270,7 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
         //             // Rust built-in comparison
         //             entry_key == key
         //         };
-        //         // sol_log_compute_units();
+        //         ////  sol_log_compute_units();
 
         //         if keys_match {
         //             return Some(entry.value());
@@ -658,65 +658,50 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
 
     // Detailed CU tracking version for debugging
     #[inline(always)]
-    pub fn find_latest_simd_iterator_with_cu_tracking(
-        &self,
-        key: [u8; 32],
-        num_iters: Option<usize>,
-    ) -> Option<u64>
+    pub fn find_latest_simd_iterator_with_cu_tracking(&self, key: [u8; 32]) -> Option<u64>
     where
         T: KeyValue<Key = [u8; 32], Value = u64>,
     {
         use solana_program::log::sol_log_compute_units;
 
-        sol_log_compute_units();
-        let max_iters = num_iters
-            .unwrap_or(self.entries.len())
-            .min(self.entries.len());
-        sol_log_compute_units();
-
-        if max_iters == 0 || self.entries.is_empty() {
-            sol_log_compute_units();
-            return None;
-        }
-        sol_log_compute_units();
-
+        //  sol_log_compute_units();
         let mut current_index = self.entries.last_index();
         let mut iterations = 0;
-        sol_log_compute_units();
+        //  sol_log_compute_units();
 
-        while iterations < max_iters {
-            sol_log_compute_units();
+        while iterations < self.entries.len() {
+            //  sol_log_compute_units();
             let entry = &self.entries[current_index];
-            sol_log_compute_units();
+            //  sol_log_compute_units();
             if simd_iterator_compare(&entry.key(), &key) {
-                sol_log_compute_units();
+                //  sol_log_compute_units();
                 return Some(entry.value());
             }
-            sol_log_compute_units();
+            //  sol_log_compute_units();
 
             iterations += 1;
-            sol_log_compute_units();
-            if iterations < max_iters {
-                sol_log_compute_units();
+            //  sol_log_compute_units();
+            if iterations < self.entries.len() {
+                //  sol_log_compute_units();
                 if current_index == 0 {
-                    sol_log_compute_units();
+                    //  sol_log_compute_units();
                     if self.entries.len() == self.entries.capacity() {
-                        sol_log_compute_units();
+                        //  sol_log_compute_units();
                         current_index = self.entries.capacity() - 1;
                     } else {
-                        sol_log_compute_units();
+                        //  sol_log_compute_units();
                         break;
                     }
-                    sol_log_compute_units();
+                    //  sol_log_compute_units();
                 } else {
-                    sol_log_compute_units();
+                    //  sol_log_compute_units();
                     current_index -= 1;
                 }
-                sol_log_compute_units();
+                //  sol_log_compute_units();
             }
-            sol_log_compute_units();
+            //  sol_log_compute_units();
         }
-        sol_log_compute_units();
+        //  sol_log_compute_units();
         None
     }
 
@@ -843,6 +828,56 @@ impl KeyValue for Entry {
     #[inline(always)]
     fn value(&self) -> Self::Value {
         self.value
+    }
+}
+
+// Specific implementation for Entry type with direct field access
+impl GenericChangelog<'_, Entry> {
+    // Non-generic version that directly accesses Entry struct fields
+    #[inline(always)]
+    pub fn find_latest_direct_field_access(&self, key: [u8; 32]) -> Option<u64> {
+        use solana_program::log::sol_log_compute_units;
+
+        //  sol_log_compute_units();
+        let mut current_index = self.entries.last_index();
+        let mut iterations = 0;
+        //  sol_log_compute_units();
+
+        while iterations < self.entries.len() {
+            //  sol_log_compute_units();
+            let entry = &self.entries[current_index];
+            //  sol_log_compute_units();
+            // Direct field access instead of trait methods
+            if simd_iterator_compare(&entry.mint, &key) {
+                //  sol_log_compute_units();
+                return Some(entry.value);
+            }
+            //  sol_log_compute_units();
+
+            iterations += 1;
+            //  sol_log_compute_units();
+            if iterations < self.entries.len() {
+                //  sol_log_compute_units();
+                if current_index == 0 {
+                    //  sol_log_compute_units();
+                    if self.entries.len() == self.entries.capacity() {
+                        //  sol_log_compute_units();
+                        current_index = self.entries.capacity() - 1;
+                    } else {
+                        //  sol_log_compute_units();
+                        break;
+                    }
+                    //  sol_log_compute_units();
+                } else {
+                    //  sol_log_compute_units();
+                    current_index -= 1;
+                }
+                //  sol_log_compute_units();
+            }
+            //  sol_log_compute_units();
+        }
+        //  sol_log_compute_units();
+        None
     }
 }
 

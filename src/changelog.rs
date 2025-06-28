@@ -1,6 +1,5 @@
 use light_zero_copy::cyclic_vec::ZeroCopyCyclicVecU64;
 use light_zero_copy::ZeroCopyTraits;
-use solana_program::log::sol_log_compute_units;
 use solana_program::pubkey::Pubkey;
 use zerocopy::{FromBytes, Immutable, IntoBytes, KnownLayout};
 
@@ -18,7 +17,6 @@ impl ManualCompare for [u8; 32] {
             }
         }
         true
-        // !self.iter().zip(other.iter()).any(|(a, b)| a != b)
     }
 }
 
@@ -239,61 +237,10 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
                 // Rust built-in comparison
                 entry.key() == key
             };
-            ////  sol_log_compute_units();
-
             if keys_match {
                 return Some(entry.value());
             }
         }
-
-        // let max_iters = num_iters
-        //     .unwrap_or(self.entries.len())
-        //     .min(self.entries.len());
-
-        // if max_iters == 0 || self.entries.is_empty() {
-        //     return None;
-        // }
-
-        // // Start from the last inserted element and work backwards
-        // let mut current_index = self.entries.last_index();
-        // let mut iterations = 0;
-
-        // while iterations < max_iters {
-        //     if let Some(entry) = self.entries.get(current_index) {
-        //         let entry_key = entry.key();
-
-        //         ////  sol_log_compute_units();
-        //         let keys_match = if USE_MANUAL_COMPARISON {
-        //             // Manual loop comparison with early exit
-        //             entry_key.manual_compare(&key)
-        //         } else {
-        //             // Rust built-in comparison
-        //             entry_key == key
-        //         };
-        //         ////  sol_log_compute_units();
-
-        //         if keys_match {
-        //             return Some(entry.value());
-        //         }
-        //     }
-
-        //     iterations += 1;
-
-        //     if iterations < max_iters {
-        //         // Move to previous index, handling wrap-around
-        //         if current_index == 0 {
-        //             if self.entries.len() == self.entries.capacity() {
-        //                 // We've wrapped around, go to the end
-        //                 current_index = self.entries.capacity() - 1;
-        //             } else {
-        //                 // Haven't filled capacity yet, we're done
-        //                 break;
-        //             }
-        //         } else {
-        //             current_index -= 1;
-        //         }
-        //     }
-        // }
 
         None
     }
@@ -662,46 +609,28 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
     where
         T: KeyValue<Key = [u8; 32], Value = u64>,
     {
-        use solana_program::log::sol_log_compute_units;
-
-        //  sol_log_compute_units();
         let mut current_index = self.entries.last_index();
         let mut iterations = 0;
-        //  sol_log_compute_units();
 
         while iterations < self.entries.len() {
-            //  sol_log_compute_units();
             let entry = &self.entries[current_index];
-            //  sol_log_compute_units();
             if simd_iterator_compare(&entry.key(), &key) {
-                //  sol_log_compute_units();
                 return Some(entry.value());
             }
-            //  sol_log_compute_units();
 
             iterations += 1;
-            //  sol_log_compute_units();
             if iterations < self.entries.len() {
-                //  sol_log_compute_units();
                 if current_index == 0 {
-                    //  sol_log_compute_units();
                     if self.entries.len() == self.entries.capacity() {
-                        //  sol_log_compute_units();
                         current_index = self.entries.capacity() - 1;
                     } else {
-                        //  sol_log_compute_units();
                         break;
                     }
-                    //  sol_log_compute_units();
                 } else {
-                    //  sol_log_compute_units();
                     current_index -= 1;
                 }
-                //  sol_log_compute_units();
             }
-            //  sol_log_compute_units();
         }
-        //  sol_log_compute_units();
         None
     }
 
@@ -836,47 +765,29 @@ impl GenericChangelog<'_, Entry> {
     // Non-generic version that directly accesses Entry struct fields
     #[inline(always)]
     pub fn find_latest_direct_field_access(&self, key: [u8; 32]) -> Option<u64> {
-        use solana_program::log::sol_log_compute_units;
-
-        //  sol_log_compute_units();
         let mut current_index = self.entries.last_index();
         let mut iterations = 0;
-        //  sol_log_compute_units();
 
         while iterations < self.entries.len() {
-            //  sol_log_compute_units();
             let entry = &self.entries[current_index];
-            //  sol_log_compute_units();
             // Direct field access instead of trait methods
             if simd_iterator_compare(&entry.mint, &key) {
-                //  sol_log_compute_units();
                 return Some(entry.value);
             }
-            //  sol_log_compute_units();
 
             iterations += 1;
-            //  sol_log_compute_units();
             if iterations < self.entries.len() {
-                //  sol_log_compute_units();
                 if current_index == 0 {
-                    //  sol_log_compute_units();
                     if self.entries.len() == self.entries.capacity() {
-                        //  sol_log_compute_units();
                         current_index = self.entries.capacity() - 1;
                     } else {
-                        //  sol_log_compute_units();
                         break;
                     }
-                    //  sol_log_compute_units();
                 } else {
-                    //  sol_log_compute_units();
                     current_index -= 1;
                 }
-                //  sol_log_compute_units();
             }
-            //  sol_log_compute_units();
         }
-        //  sol_log_compute_units();
         None
     }
 }

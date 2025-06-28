@@ -1,13 +1,13 @@
 # Optimize 32 byte array comparison in SVM
 
+Benchmarked a Generic Changelog with [u8;32] byte array as key in a Solana program with mollusk.
+
 ```bash
 cargo build-sbf
 cargo bench
 ```
 
 Bench output: `target/benches/compute_units.md`
-
-Benchmarked a Generic Changelog with [u8;32] byte array as key in a Solana program with mollusk:
 
 Base program CU cost: 563
 

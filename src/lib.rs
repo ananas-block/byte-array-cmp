@@ -4,7 +4,6 @@ mod comparisons;
 use solana_program::{
     account_info::AccountInfo,
     entrypoint::{entrypoint, ProgramResult},
-    log::sol_log_compute_units,
     msg,
     program_error::ProgramError,
     pubkey::Pubkey,
@@ -79,159 +78,120 @@ fn process_instruction(
                     .map_err(|_| ProgramError::InvalidAccountData)?;
             match instruction_data[0] {
                 10 => {
-                    //msg!("=== Changelog Find After 10 Iterations (Built-in) ===");
                     let result = changelog.find_latest::<false>(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 11 => {
-                    //msg!("=== Changelog Find After 100 Iterations (Built-in) ===");
                     let result = changelog.find_latest::<false>(target_key, Some(100));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 12 => {
-                    //msg!("=== Changelog Find Not Found (Built-in) ===");
                     let result = changelog.find_latest::<false>(target_key, None);
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 13 => {
-                    //msg!("=== Changelog Find After 10 Iterations (Manual) ===");
                     let result = changelog.find_latest::<true>(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 14 => {
-                    //msg!("=== Changelog Find After 100 Iterations (Manual) ===");
                     let result = changelog.find_latest::<true>(target_key, Some(100));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 15 => {
-                    //msg!("=== Changelog Find Not Found (Manual) ===");
                     let result = changelog.find_latest::<true>(target_key, None);
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 20 => {
-                    //msg!("=== Optimization: Unrolled Comparison ===");
                     let result = changelog.find_latest_unrolled(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 21 => {
-                    //msg!("=== Optimization: SIMD-style Comparison ===");
                     let result = changelog.find_latest_simd(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 22 => {
-                    //msg!("=== Optimization: Branchless Comparison ===");
                     let result = changelog.find_latest_branchless(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 23 => {
-                    //msg!("=== Optimization: Unsafe Fast Comparison ===");
                     let result = changelog.find_latest_unsafe(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 24 => {
-                    //msg!("=== Optimization: Unrolled Not Found Test ===");
                     let result = changelog.find_latest_unrolled(target_key, None);
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 25 => {
-                    //msg!("=== Optimization: SIMD 100 Iterations ===");
                     let result = changelog.find_latest_simd(target_key, Some(100));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 26 => {
-                    //msg!("=== Optimization: SIMD 1000 Iterations (Not Found) ===");
                     let result = changelog.find_latest_simd(target_key, None);
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 27 => {
-                    //msg!("=== P-Token: sol_memcmp Optimization ===");
                     let result = changelog.find_latest_sol_memcmp(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 28 => {
-                    //msg!("=== P-Token: u128 Cast Optimization ===");
                     let result = changelog.find_latest_u128_cast(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 29 => {
-                    //msg!("=== P-Token: Pointer Equality Optimization ===");
                     let result = changelog.find_latest_pointer_equality(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 30 => {
-                    //msg!("=== P-Token: Combined Fast Optimization ===");
                     let result = changelog.find_latest_combined_fast(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 31 => {
-                    //msg!("=== P-Token: u128 Cast 100 Iterations ===");
                     let result = changelog.find_latest_u128_cast(target_key, Some(100));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 32 => {
-                    //msg!("=== P-Token: u128 Cast 1000 Iterations (Not Found) ===");
                     let result = changelog.find_latest_u128_cast(target_key, None);
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 33 => {
-                    //msg!("=== Reference Comparison Test ===");
                     // Test reference vs value comparison
                     let array1: [u8; 32] = [1; 32];
                     let array2: [u8; 32] = [1; 32];
@@ -242,72 +202,51 @@ fn process_instruction(
                     let ref2 = &array2;
                     let ref3 = &array3;
 
-                    // Reference comparison (what you're asking about)
-                    let result1 = ref1 == ref2; // Same content, different memory locations
-                    let result2 = ref1 == ref3; // Different content
-                    let result3 = ref1 == &array1; // Same content, same memory location
-
-                    //msg!("Ref comparison same content: {}", result1);
-                    //msg!("Ref comparison diff content: {}", result2);
-                    //msg!("Ref vs original: {}", result3);
+                    // Reference comparison
+                    let _result1 = ref1 == ref2; // Same content, different memory locations
+                    let _result2 = ref1 == ref3; // Different content
+                    let _result3 = ref1 == &array1; // Same content, same memory location
 
                     // Pointer comparison for reference
-                    let result4 = std::ptr::eq(ref1, ref2);
-                    let result5 = std::ptr::eq(ref1, &array1);
-
-                    //msg!("Pointer eq same content: {}", result4);
-                    //msg!("Pointer eq same memory: {}", result5);
+                    let _result4 = std::ptr::eq(ref1, ref2);
+                    let _result5 = std::ptr::eq(ref1, &array1);
                 }
                 34 => {
-                    //msg!("=== SIMD Iterator Optimization ===");
                     let result = changelog.find_latest_simd_iterator(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 35 => {
-                    //msg!("=== SIMD Zip Iterator Optimization ===");
                     let result = changelog.find_latest_simd_zip(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 36 => {
-                    //msg!("=== SIMD Slice Comparison Optimization ===");
                     let result = changelog.find_latest_simd_slice(target_key, Some(10));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 37 => {
-                    //msg!("=== SIMD Iterator 100 Iterations ===");
                     let result = changelog.find_latest_simd_iterator(target_key, Some(100));
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 38 => {
-                    //msg!("=== SIMD Iterator 1000 Iterations (Not Found) ===");
                     let result = changelog.find_latest_simd_iterator(target_key, None);
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 39 => {
-                    // msg!("=== SIMD Iterator CU Tracking (10 Iterations) ===");
                     msg!("start");
-                    //  sol_log_compute_units();
                     let result = changelog.find_latest_direct_field_access(target_key);
-                    //  sol_log_compute_units();
                     msg!("end");
-                    //msg!("Found: {:?}", result.is_some());
-                    if let Some(value) = result {
-                        //msg!("Value: {}", value);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
                     }
                 }
                 _ => unreachable!(),
@@ -315,7 +254,6 @@ fn process_instruction(
         }
 
         _ => {
-            //msg!("Invalid instruction. Use 1-4 for comparisons, 10-15 for changelog, 20-26 for optimizations, 27-39 for p-token/SIMD optimizations");
             return Err(ProgramError::InvalidInstructionData);
         }
     }

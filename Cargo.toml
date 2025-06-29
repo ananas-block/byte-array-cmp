@@ -31,6 +31,10 @@ harness = false
 name = "changelog_cu"
 harness = false
 
+[[bench]]
+name = "simd_integer_variants"
+harness = false
+
 [profile.release]
 overflow-checks = true
 lto = "fat"

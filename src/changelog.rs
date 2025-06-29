@@ -172,6 +172,49 @@ pub fn simd_slice_compare(a: &[u8; 32], b: &[u8; 32]) -> bool {
     a_chunks == b_chunks
 }
 
+// Integer type variants for SIMD iterator comparison
+#[inline(always)]
+pub fn simd_iterator_u16_compare(a: &[u8; 32], b: &[u8; 32]) -> bool {
+    let a_chunks = unsafe { std::slice::from_raw_parts(a.as_ptr() as *const u16, 16) };
+    let b_chunks = unsafe { std::slice::from_raw_parts(b.as_ptr() as *const u16, 16) };
+
+    // Iterate over 16 u16 chunks with early exit
+    for i in 0..16 {
+        if a_chunks[i] != b_chunks[i] {
+            return false;
+        }
+    }
+    true
+}
+
+#[inline(always)]
+pub fn simd_iterator_u32_compare(a: &[u8; 32], b: &[u8; 32]) -> bool {
+    let a_chunks = unsafe { std::slice::from_raw_parts(a.as_ptr() as *const u32, 8) };
+    let b_chunks = unsafe { std::slice::from_raw_parts(b.as_ptr() as *const u32, 8) };
+
+    // Iterate over 8 u32 chunks with early exit
+    for i in 0..8 {
+        if a_chunks[i] != b_chunks[i] {
+            return false;
+        }
+    }
+    true
+}
+
+#[inline(always)]
+pub fn simd_iterator_u128_compare(a: &[u8; 32], b: &[u8; 32]) -> bool {
+    let a_chunks = unsafe { std::slice::from_raw_parts(a.as_ptr() as *const u128, 2) };
+    let b_chunks = unsafe { std::slice::from_raw_parts(b.as_ptr() as *const u128, 2) };
+
+    // Iterate over 2 u128 chunks with early exit
+    for i in 0..2 {
+        if a_chunks[i] != b_chunks[i] {
+            return false;
+        }
+    }
+    true
+}
+
 pub trait KeyValue {
     type Key: PartialEq;
     type Value: Copy;
@@ -692,6 +735,124 @@ impl<'a, T: KeyValue + ZeroCopyTraits> GenericChangelog<'a, T> {
         while iterations < max_iters {
             if let Some(entry) = self.entries.get(current_index) {
                 if simd_slice_compare(&entry.key(), &key) {
+                    return Some(entry.value());
+                }
+            }
+
+            iterations += 1;
+            if iterations < max_iters {
+                if current_index == 0 {
+                    if self.entries.len() == self.entries.capacity() {
+                        current_index = self.entries.capacity() - 1;
+                    } else {
+                        break;
+                    }
+                } else {
+                    current_index -= 1;
+                }
+            }
+        }
+        None
+    }
+
+    // Integer type variants for SIMD iterator methods
+    #[inline(always)]
+    pub fn find_latest_simd_iterator_u16(&self, key: [u8; 32], num_iters: Option<usize>) -> Option<u64>
+    where
+        T: KeyValue<Key = [u8; 32], Value = u64>,
+    {
+        let max_iters = num_iters
+            .unwrap_or(self.entries.len())
+            .min(self.entries.len());
+
+        if max_iters == 0 || self.entries.is_empty() {
+            return None;
+        }
+
+        let mut current_index = self.entries.last_index();
+        let mut iterations = 0;
+
+        while iterations < max_iters {
+            if let Some(entry) = self.entries.get(current_index) {
+                if simd_iterator_u16_compare(&entry.key(), &key) {
+                    return Some(entry.value());
+                }
+            }
+
+            iterations += 1;
+            if iterations < max_iters {
+                if current_index == 0 {
+                    if self.entries.len() == self.entries.capacity() {
+                        current_index = self.entries.capacity() - 1;
+                    } else {
+                        break;
+                    }
+                } else {
+                    current_index -= 1;
+                }
+            }
+        }
+        None
+    }
+
+    #[inline(always)]
+    pub fn find_latest_simd_iterator_u32(&self, key: [u8; 32], num_iters: Option<usize>) -> Option<u64>
+    where
+        T: KeyValue<Key = [u8; 32], Value = u64>,
+    {
+        let max_iters = num_iters
+            .unwrap_or(self.entries.len())
+            .min(self.entries.len());
+
+        if max_iters == 0 || self.entries.is_empty() {
+            return None;
+        }
+
+        let mut current_index = self.entries.last_index();
+        let mut iterations = 0;
+
+        while iterations < max_iters {
+            if let Some(entry) = self.entries.get(current_index) {
+                if simd_iterator_u32_compare(&entry.key(), &key) {
+                    return Some(entry.value());
+                }
+            }
+
+            iterations += 1;
+            if iterations < max_iters {
+                if current_index == 0 {
+                    if self.entries.len() == self.entries.capacity() {
+                        current_index = self.entries.capacity() - 1;
+                    } else {
+                        break;
+                    }
+                } else {
+                    current_index -= 1;
+                }
+            }
+        }
+        None
+    }
+
+    #[inline(always)]
+    pub fn find_latest_simd_iterator_u128(&self, key: [u8; 32], num_iters: Option<usize>) -> Option<u64>
+    where
+        T: KeyValue<Key = [u8; 32], Value = u64>,
+    {
+        let max_iters = num_iters
+            .unwrap_or(self.entries.len())
+            .min(self.entries.len());
+
+        if max_iters == 0 || self.entries.is_empty() {
+            return None;
+        }
+
+        let mut current_index = self.entries.last_index();
+        let mut iterations = 0;
+
+        while iterations < max_iters {
+            if let Some(entry) = self.entries.get(current_index) {
+                if simd_iterator_u128_compare(&entry.key(), &key) {
                     return Some(entry.value());
                 }
             }

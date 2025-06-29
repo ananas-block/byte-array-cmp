@@ -56,8 +56,8 @@ fn process_instruction(
             }
         }
 
-        // Changelog benchmarks (10-15), optimizations (20-26), p-token optimizations (27-33), and SIMD iterations (34-39)
-        10..=15 | 20..=39 => {
+        // Changelog benchmarks (10-15), optimizations (20-26), p-token optimizations (27-33), SIMD iterations (34-39), and integer variants (40-42)
+        10..=15 | 20..=42 => {
             if accounts.is_empty() {
                 return Err(ProgramError::NotEnoughAccountKeys);
             }
@@ -245,6 +245,24 @@ fn process_instruction(
                     msg!("start");
                     let result = changelog.find_latest_direct_field_access(target_key);
                     msg!("end");
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
+                    }
+                }
+                40 => {
+                    let result = changelog.find_latest_simd_iterator_u16(target_key, None);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
+                    }
+                }
+                41 => {
+                    let result = changelog.find_latest_simd_iterator_u32(target_key, None);
+                    if let Some(_value) = result {
+                        // Found value, using it for computation
+                    }
+                }
+                42 => {
+                    let result = changelog.find_latest_simd_iterator_u128(target_key, None);
                     if let Some(_value) = result {
                         // Found value, using it for computation
                     }

@@ -2,6 +2,10 @@
 
 Benchmarked a Generic Changelog with [u8;32] byte array as key in a Solana program with mollusk.
 
+Strategy, fail early.
+Only makes sense if most comparisons will fail.
+If comparisons are expected to succeed partial eq is better.
+
 ```bash
 cargo build-sbf
 cargo bench
@@ -40,3 +44,19 @@ Base program CU cost: 563
 | ptoken_u128_cast_1000_not_found        | 66,751 |
 | find_not_found_manual                  | 72,730 |
 | find_not_found_partialeq               | 105,720|
+
+## SIMD Iterator Integer Type Variants (1000 iterations, not found)
+
+Detailed comparison of different integer chunk sizes for the most efficient SIMD iterator approach:
+
+```bash
+cargo bench --bench simd_integer_variants
+```
+
+| Integer Type | Chunk Count | Chunk Size | CUs     | Performance |
+|--------------|-------------|------------|---------|-------------|
+| **1000 iterations**                     |         |             |
+| **u64**      | 4 chunks   | 8 bytes     | 61,708  | **Optimal** |
+| **u32**      | 8 chunks   | 4 bytes     | 64,706  | -2,998 CUs  |
+| **u16**      | 16 chunks  | 2 bytes     | 64,707  | -2,999 CUs  |
+| **u128**     | 2 chunks   | 16 bytes    | 66,708  | -5,000 CUs  |

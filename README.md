@@ -6,6 +6,15 @@ Strategy, fail early.
 Only makes sense if most comparisons will fail.
 If comparisons are expected to succeed partial eq is better.
 
+### TLDR:
+Note, the bench setup is not 100% clean, for full comparison CU costs of simd_iterator and partial eq are identical measurements range from identical to 23 CU simd improvement per comparison.
+
+1. SIMD shows fail-early optimization: 4 → 7 → 10 → 13 CUs as it processes more u64 chunks
+2. PartialEq is position-independent: Always 36 CUs regardless of failure position
+3. SIMD advantage: 23-32 CUs better than PartialEq for failure cases
+4. Equal case: SIMD (13 CUs) is 23 CUs better than PartialEq (36 CUs)
+
+
 ```bash
 cargo build-sbf
 cargo bench

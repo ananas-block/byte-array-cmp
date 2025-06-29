@@ -39,6 +39,10 @@ harness = false
 name = "fail_early_position"
 harness = false
 
+[[bench]]
+name = "random_key_equal_case"
+harness = false
+
 [profile.release]
 overflow-checks = true
 lto = "fat"

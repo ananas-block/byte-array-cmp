@@ -35,6 +35,10 @@ harness = false
 name = "simd_integer_variants"
 harness = false
 
+[[bench]]
+name = "fail_early_position"
+harness = false
+
 [profile.release]
 overflow-checks = true
 lto = "fat"
